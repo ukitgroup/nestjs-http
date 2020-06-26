@@ -1,0 +1,35 @@
+language: node_js
+
+node_js: "10"
+
+cache:
+  directories:
+    - node_modules
+
+notifications:
+  email:
+    recipients:
+      - laplandin.denis@gmail.com
+    on_success: never
+    on_failure: always
+
+install:
+  - npm install
+
+jobs:
+  include:
+    - stage: lints
+      name: linting and type checking
+      script:
+        - npm run lint
+        - npm build
+    - stage: tests
+      script:
+        - npm run test:cov
+      after_success:
+        - npm run report-coverage
+    - stage: npm release
+      name: release
+      script:
+        - npx semantic-release
+      if: branch = master
