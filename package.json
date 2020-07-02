@@ -33,8 +33,9 @@
   },
   "dependencies": {
     "express": "^4.17.1",
-    "reflect-metadata": "^0.1.13",
-    "got": "^11.3.0"
+    "got": "^11.3.0",
+    "lodash": "^4.17.15",
+    "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
     "@commitlint/cli": "9.0.1",

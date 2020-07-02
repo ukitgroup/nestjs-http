@@ -1,90 +1,90 @@
-import got, { Got, Options } from "got";
-import { Inject, Optional } from "@nestjs/common";
+import got, { Got } from 'got';
+import { Inject, Optional } from '@nestjs/common';
 import {
   GOT_INSTANCE,
   TRACE_DATA_SERVICE,
-  TRACE_SERVICE_CONFIG
-} from "./constants";
-import { traceServiceOptsType } from "./http-client.config";
+  HTTP_CLIENT_SERVICE_CONFIG,
+} from './constants';
+import { ServiceOptsType, HttpClientOptionsType } from './types/config.types';
 
 export class HttpClientService {
   constructor(
     @Inject(GOT_INSTANCE) private readonly gotInstance: Got = got,
     @Optional() @Inject(TRACE_DATA_SERVICE) private readonly traceDataService,
     @Optional()
-    @Inject(TRACE_SERVICE_CONFIG)
-    private readonly traceDataServiceOpts: traceServiceOptsType
+    @Inject(HTTP_CLIENT_SERVICE_CONFIG)
+    private readonly serviceOpts: ServiceOptsType,
   ) {}
 
   get(
     url: string,
-    { clientOpts }: { clientOpts: Options } = { clientOpts: {} }
+    { clientOpts }: { clientOpts: HttpClientOptionsType } = { clientOpts: {} },
   ) {
     const { headers } = clientOpts;
     const traceHeaders = this.getHeaders();
     return this.gotInstance.get(url, {
       ...clientOpts,
-      headers: { ...headers, ...traceHeaders }
+      headers: { ...headers, ...traceHeaders },
     });
   }
 
   post(
     url: string,
-    { clientOpts }: { clientOpts: Options } = { clientOpts: {} }
+    { clientOpts }: { clientOpts: HttpClientOptionsType } = { clientOpts: {} },
   ) {
     const { headers } = clientOpts;
     const traceHeaders = this.getHeaders();
     return this.gotInstance.post(url, {
       ...clientOpts,
-      headers: { ...headers, ...traceHeaders }
+      headers: { ...headers, ...traceHeaders },
     });
   }
 
   delete(
     url: string,
-    { clientOpts }: { clientOpts: Options } = { clientOpts: {} }
+    { clientOpts }: { clientOpts: HttpClientOptionsType } = { clientOpts: {} },
   ) {
     const { headers } = clientOpts;
     const traceHeaders = this.getHeaders();
     return this.gotInstance.delete(url, {
       ...clientOpts,
-      headers: { ...headers, ...traceHeaders }
+      headers: { ...headers, ...traceHeaders },
     });
   }
 
   head(
     url: string,
-    { clientOpts }: { clientOpts: Options } = { clientOpts: {} }
+    { clientOpts }: { clientOpts: HttpClientOptionsType } = { clientOpts: {} },
   ) {
     const { headers } = clientOpts;
     const traceHeaders = this.getHeaders();
     return this.gotInstance.head(url, {
       ...clientOpts,
-      headers: { ...headers, ...traceHeaders }
+      headers: { ...headers, ...traceHeaders },
     });
   }
 
   put(
     url: string,
-    { clientOpts }: { clientOpts: Options } = { clientOpts: {} }
+    { clientOpts }: { clientOpts: HttpClientOptionsType } = { clientOpts: {} },
   ) {
     const { headers } = clientOpts;
     const traceHeaders = this.getHeaders();
     return this.gotInstance.put(url, {
       ...clientOpts,
-      headers: { ...headers, ...traceHeaders }
+      headers: { ...headers, ...traceHeaders },
     });
   }
 
   patch(
     url: string,
-    { clientOpts }: { clientOpts: Options } = { clientOpts: {} }
+    { clientOpts }: { clientOpts: HttpClientOptionsType } = { clientOpts: {} },
   ) {
     const { headers } = clientOpts;
     const traceHeaders = this.getHeaders();
     return this.gotInstance.patch(url, {
       ...clientOpts,
-      headers: { ...headers, ...traceHeaders }
+      headers: { ...headers, ...traceHeaders },
     });
   }
 
@@ -93,12 +93,12 @@ export class HttpClientService {
   }
 
   private getHeaders() {
-    if (!this.isTraceServiceExists) {
+    if (!this.shouldTraceServiceInvoke) {
       return {};
     }
     const traceData = this.extractTraceData();
 
-    const { headersMap, excludeHeaders } = this.traceDataServiceOpts;
+    const { headersMap, excludeHeaders } = this.serviceOpts;
 
     return Object.entries(headersMap).reduce((acc, [propName, headerName]) => {
       if (excludeHeaders.includes(headerName)) {
@@ -109,7 +109,15 @@ export class HttpClientService {
     }, {});
   }
 
-  get isTraceServiceExists() {
-    return this.traceDataServiceOpts && this.traceDataService;
+  get shouldTraceServiceInvoke() {
+    return this.serviceOpts && this.traceDataService;
+  }
+
+  get clientOpts() {
+    return this.gotInstance.defaults.options;
+  }
+
+  get serviceConfig() {
+    return this.serviceOpts;
   }
 }

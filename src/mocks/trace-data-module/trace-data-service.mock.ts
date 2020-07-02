@@ -1,4 +1,4 @@
-import { TraceDataServiceInterface } from "../trace-data-service.interface";
+import { TraceDataServiceInterface } from '../../types/trace-data-service.interface';
 
 export type TraceMockDataType = {
   traceId: string;
@@ -11,9 +11,9 @@ export class TraceDataServiceMock implements TraceDataServiceInterface {
 
   constructor() {
     this.requestData = {
-      traceId: "test-id",
-      ip: "185.154.75.21",
-      referrer: "my-referrer.com/some/page.html"
+      traceId: 'test-id',
+      ip: '185.154.75.21',
+      referrer: 'my-referrer.com/some/page.html',
     };
   }
 
