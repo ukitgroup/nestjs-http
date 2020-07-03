@@ -7,17 +7,11 @@ export type TraceMockDataType = {
 };
 
 export class TraceDataServiceMock implements TraceDataServiceInterface {
-  private readonly requestData: TraceMockDataType;
-
-  constructor() {
-    this.requestData = {
+  getRequestData(): TraceMockDataType {
+    return {
       traceId: 'test-id',
       ip: '185.154.75.21',
       referrer: 'my-referrer.com/some/page.html',
     };
-  }
-
-  getRequestData() {
-    return this.requestData;
   }
 }

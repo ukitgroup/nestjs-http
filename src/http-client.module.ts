@@ -3,12 +3,14 @@ import { merge } from 'lodash';
 import { DynamicModule } from '@nestjs/common';
 import { HttpClientService } from './http-client.service';
 import { HttpClientForRootType } from './types/config.types';
+import { httpServiceConfigDefaults } from './http-client.config.defaults';
 
 import {
   GOT_INSTANCE,
   HTTP_CLIENT_ROOT_GOT_OPTS,
   HTTP_CLIENT_INSTANCE_GOT_OPTS,
-} from './constants';
+  HTTP_CLIENT_SERVICE_CONFIG,
+} from './di-token-constants';
 
 const globalState = {
   imports: [],
@@ -38,6 +40,10 @@ export class HttpClient {
       {
         provide: HTTP_CLIENT_ROOT_GOT_OPTS,
         useValue: {},
+      },
+      {
+        provide: HTTP_CLIENT_SERVICE_CONFIG,
+        useValue: httpServiceConfigDefaults,
       },
     ];
 

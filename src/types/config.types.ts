@@ -13,7 +13,8 @@ export type HttpClientForRootType = {
   providers?: Array<Provider>;
 };
 
-export type ServiceOptsType = {
+export type ServiceConfigType = {
+  enableTraceService: boolean;
   headersMap: {
     [key: string]: string;
   };

@@ -1,11 +1,13 @@
+import { merge } from 'lodash';
 import got, { Got } from 'got';
 import { Inject, Optional } from '@nestjs/common';
 import {
   GOT_INSTANCE,
   TRACE_DATA_SERVICE,
   HTTP_CLIENT_SERVICE_CONFIG,
-} from './constants';
-import { ServiceOptsType, HttpClientOptionsType } from './types/config.types';
+} from './di-token-constants';
+import { httpServiceConfigDefaults } from './http-client.config.defaults';
+import { ServiceConfigType, HttpClientOptionsType } from './types/config.types';
 
 export class HttpClientService {
   constructor(
@@ -13,8 +15,10 @@ export class HttpClientService {
     @Optional() @Inject(TRACE_DATA_SERVICE) private readonly traceDataService,
     @Optional()
     @Inject(HTTP_CLIENT_SERVICE_CONFIG)
-    private readonly serviceOpts: ServiceOptsType,
-  ) {}
+    private readonly serviceOpts: ServiceConfigType,
+  ) {
+    this.serviceOpts = merge(httpServiceConfigDefaults, this.serviceOpts);
+  }
 
   get(
     url: string,
@@ -88,15 +92,11 @@ export class HttpClientService {
     });
   }
 
-  private extractTraceData() {
-    return this.traceDataService.getRequestData();
-  }
-
   private getHeaders() {
     if (!this.shouldTraceServiceInvoke) {
       return {};
     }
-    const traceData = this.extractTraceData();
+    const traceData = this.traceDataService.getRequestData();
 
     const { headersMap, excludeHeaders } = this.serviceOpts;
 
@@ -110,7 +110,12 @@ export class HttpClientService {
   }
 
   get shouldTraceServiceInvoke() {
-    return this.serviceOpts && this.traceDataService;
+    if (this.serviceOpts.enableTraceService && !this.traceDataService) {
+      throw new Error(
+        "You had enabled usage of TraceDataService, but didn't passed it",
+      );
+    }
+    return this.serviceOpts.enableTraceService && this.traceDataService;
   }
 
   get clientOpts() {

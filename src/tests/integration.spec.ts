@@ -21,11 +21,11 @@ import {
   TRACE_DATA_SERVICE,
   HTTP_CLIENT_SERVICE_CONFIG,
   HTTP_CLIENT_INSTANCE_GOT_OPTS,
-} from '../constants';
+} from '../di-token-constants';
 
 import {
   HttpClientForRootType,
-  ServiceOptsType,
+  ServiceConfigType,
   HttpClientOptionsType,
 } from '../types/config.types';
 
@@ -46,7 +46,7 @@ describe('HttpClient.forRoot integration tests', () => {
       .get('/transitEndpoint')
       .times(10)
       .reply(200, function handler() {
-        // Loopback received headers into body
+        /* Loopback received headers into body */
         return { headers: this.req.headers };
       });
 
@@ -73,7 +73,7 @@ describe('HttpClient.forRoot integration tests', () => {
       injectTraceService = false,
     }: {
       clientOpts?: HttpClientOptionsType;
-      moduleOpts?: ServiceOptsType;
+      moduleOpts?: ServiceConfigType;
       injectTraceService: boolean;
     }) {
       @Controller('/')
@@ -142,6 +142,29 @@ describe('HttpClient.forRoot integration tests', () => {
       await instantiateContextForRoot({
         clientOpts: {},
         moduleOpts: httpServiceConfigMock,
+        injectTraceService: true,
+      });
+      const expectedHeaders = {
+        [traceIdHeader]: 'test-id',
+        'x-real-ip': '185.154.75.21',
+        referrer: 'my-referrer.com/some/page.html',
+      };
+      const {
+        body: { headers },
+      } = await ctx.http
+        .get('/transit')
+        .set(traceIdHeader, 'test-id')
+        .set('x-real-ip', '185.154.75.21')
+        .set('user-agent', 'my-awesome-agent')
+        .set('referrer', 'my-referrer.com/some/page.html');
+      Object.entries(expectedHeaders).forEach(([headerName, value]) => {
+        expect(headers[headerName]).toEqual(value);
+      });
+    });
+
+    it("Test attach headers for transit request with service default config, if custom wasn't pass", async () => {
+      await instantiateContextForRoot({
+        clientOpts: {},
         injectTraceService: true,
       });
       const expectedHeaders = {

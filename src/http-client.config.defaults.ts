@@ -1,5 +1,5 @@
-export const httpServiceConfigMock = {
-  enableTraceService: true,
+export const httpServiceConfigDefaults = {
+  enableTraceService: false,
   headersMap: {
     traceId: 'x-trace-id',
     ip: 'x-real-ip',
