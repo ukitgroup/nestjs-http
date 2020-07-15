@@ -66,6 +66,66 @@ describe('HttpClient.forRoot integration tests', () => {
     retryCounter = 0;
   });
 
+  describe('HttpClient.forInstance integration tests', () => {
+    async function instantiateContextForInstance({
+      clientOpts,
+    }: {
+      clientOpts?: HttpClientOptionsType;
+    }) {
+      @Controller('/')
+      class TestController {
+        constructor(
+          @Inject(HttpClientService) private readonly httpClient: Got,
+        ) {}
+
+        @Get('error')
+        @HttpCode(500)
+        private async getErrorHandler() {
+          try {
+            return await this.httpClient.get(`${mockUrl}/error`);
+          } catch (err) {
+            return err;
+          }
+        }
+      }
+
+      const providers = [];
+
+      if (clientOpts) {
+        providers.push({
+          provide: HTTP_CLIENT_INSTANCE_GOT_OPTS,
+          useValue: clientOpts,
+        });
+      }
+
+      const forRootProps: HttpClientForRootType = {
+        imports: [ConfigModuleMock],
+        providers,
+      };
+
+      ctx.appModule = await Test.createTestingModule({
+        imports: [HttpClient.forInstance(forRootProps)],
+        controllers: [TestController],
+      }).compile();
+
+      ctx.app = ctx.appModule.createNestApplication();
+      await ctx.app.init();
+
+      ctx.http = supertest(ctx.app.getHttpServer());
+    }
+
+    it('Test clientOpts applying to HttpClient', async () => {
+      await instantiateContextForInstance({
+        clientOpts: {
+          retry: 1,
+        },
+      });
+
+      await ctx.http.get('/error');
+      expect(retryCounter).toEqual(2);
+    });
+  });
+
   describe('HttpService.forRoot method', () => {
     async function instantiateContextForRoot({
       clientOpts,
@@ -211,66 +271,6 @@ describe('HttpClient.forRoot integration tests', () => {
         expect(headers[headerName]).toEqual(value);
       });
       expect(headers.referrer).toEqual(undefined);
-    });
-  });
-
-  describe('HttpClient.forInstance integration tests', () => {
-    async function instantiateContextForInstance({
-      clientOpts,
-    }: {
-      clientOpts?: HttpClientOptionsType;
-    }) {
-      @Controller('/')
-      class TestController {
-        constructor(
-          @Inject(HttpClientService) private readonly httpClient: Got,
-        ) {}
-
-        @Get('error')
-        @HttpCode(500)
-        private async getErrorHandler() {
-          try {
-            return await this.httpClient.get(`${mockUrl}/error`);
-          } catch (err) {
-            return err;
-          }
-        }
-      }
-
-      const providers = [];
-
-      if (clientOpts) {
-        providers.push({
-          provide: HTTP_CLIENT_INSTANCE_GOT_OPTS,
-          useValue: clientOpts,
-        });
-      }
-
-      const forRootProps: HttpClientForRootType = {
-        imports: [ConfigModuleMock],
-        providers,
-      };
-
-      ctx.appModule = await Test.createTestingModule({
-        imports: [HttpClient.forInstance(forRootProps)],
-        controllers: [TestController],
-      }).compile();
-
-      ctx.app = ctx.appModule.createNestApplication();
-      await ctx.app.init();
-
-      ctx.http = supertest(ctx.app.getHttpServer());
-    }
-
-    it('Test clientOpts applying to HttpClient', async () => {
-      await instantiateContextForInstance({
-        clientOpts: {
-          retry: 1,
-        },
-      });
-
-      await ctx.http.get('/error');
-      expect(retryCounter).toEqual(2);
     });
   });
 });
