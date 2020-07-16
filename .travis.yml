@@ -28,6 +28,9 @@ jobs:
         - npm run test:cov
       after_success:
         - npm run report-coverage
+    - stage: e2e-tests
+      script:
+        - npm run test:e2e
     - stage: npm release
       name: release
       script:
