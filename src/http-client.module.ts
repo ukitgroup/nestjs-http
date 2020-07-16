@@ -1,74 +1,27 @@
 import got from 'got';
 import { merge } from 'lodash';
-import { DynamicModule } from '@nestjs/common';
-import { HttpClientService } from './http-client.service';
+import { DynamicModule, Module } from '@nestjs/common';
 import { HttpClientForRootType } from './types/config.types';
-import { httpServiceConfigDefaults } from './http-client.config.defaults';
-
+import { HttpClientCoreModule } from './http-client-core.module';
 import {
   GOT_INSTANCE,
-  HTTP_CLIENT_ROOT_GOT_OPTS,
   HTTP_CLIENT_INSTANCE_GOT_OPTS,
+  HTTP_CLIENT_ROOT_GOT_OPTS,
   HTTP_CLIENT_SERVICE_CONFIG,
 } from './di-token-constants';
+import { HttpClientService } from './http-client.service';
+import { httpServiceConfigDefaults } from './http-client.config.defaults';
+import { addDefaults } from './utils';
 
-const globalState = {
-  imports: [],
-  providers: [],
-};
-
-function addDefaults(providers, defaults) {
-  const providersList = [...providers];
-  defaults.forEach(providerDefault => {
-    const { provide } = providerDefault;
-    const passedProvider = providers.find(
-      provider => provider.provide === provide,
-    );
-    if (!passedProvider) {
-      providersList.push(providerDefault);
-    }
-  });
-  return providersList;
-}
-
+@Module({})
 export class HttpClient {
   static forRoot({
     imports = [],
     providers = [],
   }: HttpClientForRootType): DynamicModule {
-    const defaults = [
-      {
-        provide: HTTP_CLIENT_ROOT_GOT_OPTS,
-        useValue: {},
-      },
-      {
-        provide: HTTP_CLIENT_SERVICE_CONFIG,
-        useValue: httpServiceConfigDefaults,
-      },
-    ];
-
-    const providersWithDefaults = addDefaults(providers, defaults);
-
-    globalState.imports = imports;
-    globalState.providers = providersWithDefaults;
-
-    const gotProviderFactory = {
-      provide: GOT_INSTANCE,
-      useFactory: (clientRootOpts = {}) => {
-        return got.extend(clientRootOpts);
-      },
-      inject: [HTTP_CLIENT_ROOT_GOT_OPTS],
-    };
-
     return {
       module: HttpClient,
-      imports,
-      providers: [
-        ...globalState.providers,
-        HttpClientService,
-        gotProviderFactory,
-      ],
-      exports: [HttpClientService],
+      imports: [HttpClientCoreModule.forRoot({ imports, providers })],
     };
   }
 
@@ -81,12 +34,12 @@ export class HttpClient {
         provide: HTTP_CLIENT_INSTANCE_GOT_OPTS,
         useValue: {},
       },
+      {
+        provide: HTTP_CLIENT_SERVICE_CONFIG,
+        useValue: httpServiceConfigDefaults,
+      },
     ];
     const providersWithDefaults = addDefaults(providers, defaults);
-    const providersWithGlobals = [
-      ...providersWithDefaults,
-      ...globalState.providers,
-    ];
 
     const gotProviderFactory = {
       provide: GOT_INSTANCE,
@@ -95,14 +48,13 @@ export class HttpClient {
       },
       inject: [HTTP_CLIENT_ROOT_GOT_OPTS, HTTP_CLIENT_INSTANCE_GOT_OPTS],
     };
-
     return {
-      imports: [...globalState.imports, ...imports],
       module: HttpClient,
+      imports,
       providers: [
-        ...providersWithGlobals,
-        HttpClientService,
+        ...providersWithDefaults,
         gotProviderFactory,
+        HttpClientService,
       ],
       exports: [HttpClientService],
     };
