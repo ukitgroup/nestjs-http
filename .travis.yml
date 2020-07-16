@@ -1,7 +1,5 @@
 language: node_js
 
-node_js: "10"
-
 cache:
   directories:
     - node_modules
@@ -13,26 +11,36 @@ notifications:
     on_success: never
     on_failure: always
 
-install:
-  - npm install
-
+stages:
+  - lints
+  - test
+  - name: release
+    if: branch = master
 jobs:
   include:
     - stage: lints
-      name: linting and type checking
+      name: 'linting and type checking'
+      node_js:
+        - '12'
+      before_script:
+        - npm prune
       script:
         - npm run lint
-        - npm build
-    - stage: tests
+        - npm run build
+    - stage: test
+      node_js:
+        - '12'
+      before_script:
+        - npm prune
       script:
         - npm run test:cov
+        - npm run test:e2e
       after_success:
         - npm run report-coverage
-    - stage: e2e-tests
+    - stage: release
+      node_js: '12'
+      before_script:
+        - npm prune
       script:
-        - npm run test:e2e
-    - stage: npm release
-      name: release
-      script:
-        - npx semantic-release
-      if: branch = master
+        - npm run build
+        - npm run semantic-release
