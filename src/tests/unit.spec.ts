@@ -1,10 +1,10 @@
 import { Test } from '@nestjs/testing';
-import { httpServiceConfigMock } from '../mocks/config-module/config-module.config.mock';
+import { httpServiceConfigMock } from '../../test/fixtures/config-module/config-module.config.mock';
 import { HttpClient } from '../http-client.module';
 import { HttpClientService } from '../http-client.service';
 
-import { TraceDataServiceMock } from '../mocks/trace-data-module/trace-data-service.mock';
-import { TraceDataServiceModuleMock } from '../mocks/trace-data-module/trace-data-module.mock';
+import { TraceDataServiceMock } from '../../test/fixtures/trace-data-module/trace-data-service.mock';
+import { TraceDataServiceModuleMock } from '../../test/fixtures/trace-data-module/trace-data-module.mock';
 
 import {
   HTTP_CLIENT_INSTANCE_GOT_OPTS,
