@@ -1,4 +1,6 @@
 import { DynamicModule, Global, Module } from '@nestjs/common';
+import http from 'http';
+import https from 'https';
 import { HttpClientForRootType } from './types/config.types';
 import { HTTP_CLIENT_ROOT_GOT_OPTS } from './di-token-constants';
 import { addDefaults } from './utils';
@@ -13,7 +15,12 @@ export class HttpClientCoreModule {
     const defaults = [
       {
         provide: HTTP_CLIENT_ROOT_GOT_OPTS,
-        useValue: {},
+        useValue: {
+          agent: {
+            http: new http.Agent({ keepAlive: true }),
+            https: new https.Agent({ keepAlive: true }),
+          },
+        },
       },
     ];
 

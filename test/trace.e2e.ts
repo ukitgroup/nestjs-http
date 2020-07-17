@@ -13,7 +13,6 @@ import nock from 'nock';
 import { HttpClient, HttpClientService } from '../src';
 import {
   HTTP_CLIENT_INSTANCE_GOT_OPTS,
-  HTTP_CLIENT_ROOT_GOT_OPTS,
   HTTP_CLIENT_SERVICE_CONFIG,
   TRACE_DATA_SERVICE,
 } from '../src/di-token-constants';
@@ -72,14 +71,7 @@ describe('Trace data service', () => {
       });
 
     ctx.appModule = await Test.createTestingModule({
-      imports: [
-        HttpClient.forRoot({
-          providers: [
-            { provide: HTTP_CLIENT_ROOT_GOT_OPTS, useValue: { retry: 3 } },
-          ],
-        }),
-        CatModule,
-      ],
+      imports: [HttpClient.forRoot({}), CatModule],
     }).compile();
 
     ctx.app = ctx.appModule.createNestApplication();
