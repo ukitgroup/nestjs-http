@@ -8,11 +8,14 @@ import {
 } from './di-token-constants';
 import { httpServiceConfigDefaults } from './http-client.config.defaults';
 import { ServiceConfigType, HttpClientOptionsType } from './types/config.types';
+import { TraceDataServiceInterface } from './types/trace-data-service.interface';
 
 export class HttpClientService {
   constructor(
     @Inject(GOT_INSTANCE) private readonly gotInstance: Got = got,
-    @Optional() @Inject(TRACE_DATA_SERVICE) private readonly traceDataService,
+    @Optional()
+    @Inject(TRACE_DATA_SERVICE)
+    private readonly traceDataService: TraceDataServiceInterface,
     @Optional()
     @Inject(HTTP_CLIENT_SERVICE_CONFIG)
     private readonly serviceOpts: ServiceConfigType,
