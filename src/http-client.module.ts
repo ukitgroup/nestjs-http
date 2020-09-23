@@ -1,17 +1,11 @@
 import got from 'got';
-import { merge } from 'lodash';
 import { DynamicModule, Module } from '@nestjs/common';
 import { HttpClientForRootType } from './types/config.types';
 import { HttpClientCoreModule } from './http-client-core.module';
-import {
-  GOT_INSTANCE,
-  HTTP_CLIENT_INSTANCE_GOT_OPTS,
-  HTTP_CLIENT_ROOT_GOT_OPTS,
-  HTTP_CLIENT_SERVICE_CONFIG,
-} from './di-token-constants';
+import { GOT_INSTANCE, HTTP_CLIENT_SERVICE_CONFIG } from './di-token-constants';
 import { HttpClientService } from './http-client.service';
 import { httpServiceConfigDefaults } from './http-client.config.defaults';
-import { addDefaults } from './utils';
+import { GotConfigProvider } from './got-config.provider';
 
 @Module({})
 export class HttpClient {
@@ -28,32 +22,30 @@ export class HttpClient {
   static forInstance({
     imports = [],
     providers = [],
-  }: HttpClientForRootType): DynamicModule {
-    const defaults = [
-      {
-        provide: HTTP_CLIENT_INSTANCE_GOT_OPTS,
-        useValue: {},
-      },
+  }: HttpClientForRootType = {}): DynamicModule {
+    const defaultProviders = [
       {
         provide: HTTP_CLIENT_SERVICE_CONFIG,
         useValue: httpServiceConfigDefaults,
       },
     ];
-    const providersWithDefaults = addDefaults(providers, defaults);
 
     const gotProviderFactory = {
       provide: GOT_INSTANCE,
-      useFactory: (globalOpts = {}, clientOpts = {}) => {
-        return got.extend(merge(globalOpts, clientOpts));
+      useFactory: (gotConfigProvider: GotConfigProvider) => {
+        const config = gotConfigProvider.getConfig();
+        return got.extend(config);
       },
-      inject: [HTTP_CLIENT_ROOT_GOT_OPTS, HTTP_CLIENT_INSTANCE_GOT_OPTS],
+      inject: [GotConfigProvider],
     };
     return {
       module: HttpClient,
       imports,
       providers: [
-        ...providersWithDefaults,
+        ...defaultProviders,
+        ...providers,
         gotProviderFactory,
+        GotConfigProvider,
         HttpClientService,
       ],
       exports: [HttpClientService],

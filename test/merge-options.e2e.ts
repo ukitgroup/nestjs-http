@@ -12,11 +12,12 @@ import supertest from 'supertest';
 import nock from 'nock';
 import { HttpClient, HttpClientService } from '../src';
 import {
-  HTTP_CLIENT_INSTANCE_GOT_OPTS,
-  HTTP_CLIENT_ROOT_GOT_OPTS,
+  FOR_INSTANCE__GOT_OPTS,
+  FOR_ROOT__GOT_OPTS,
 } from '../src/di-token-constants';
+import { calculateDelayMock } from './fixtures/got-mock';
 
-describe('Merge options', () => {
+describe('Use different options for GOT in different modules', () => {
   const mockUrl = 'http://example.domain';
   let tryCounter = 0;
   const ctx: {
@@ -40,17 +41,41 @@ describe('Merge options', () => {
     }
   }
 
+  @Controller('root')
+  class RootController {
+    constructor(@Inject(HttpClientService) private readonly httpClient: Got) {}
+
+    @Get('error')
+    @HttpCode(500)
+    private async getErrorHandler() {
+      try {
+        return await this.httpClient.get(`${mockUrl}/error`);
+      } catch (err) {
+        return err;
+      }
+    }
+  }
+
   @Module({
     imports: [
       HttpClient.forInstance({
         providers: [
-          { provide: HTTP_CLIENT_INSTANCE_GOT_OPTS, useValue: { retry: 1 } },
+          {
+            provide: FOR_INSTANCE__GOT_OPTS,
+            useValue: { retry: { limit: 4 } },
+          },
         ],
       }),
     ],
     controllers: [CatController],
   })
   class CatModule {}
+
+  @Module({
+    imports: [HttpClient.forInstance()],
+    controllers: [RootController],
+  })
+  class RootModule {}
 
   @Controller('dog')
   class DogController {
@@ -71,7 +96,10 @@ describe('Merge options', () => {
     imports: [
       HttpClient.forInstance({
         providers: [
-          { provide: HTTP_CLIENT_INSTANCE_GOT_OPTS, useValue: { retry: 2 } },
+          {
+            provide: FOR_INSTANCE__GOT_OPTS,
+            useValue: { retry: { limit: 3 } },
+          },
         ],
       }),
     ],
@@ -82,7 +110,7 @@ describe('Merge options', () => {
   beforeEach(async () => {
     nock(mockUrl)
       .get('/error')
-      .times(10)
+      .times(20)
       .reply(500, () => {
         tryCounter += 1;
         return { error: 'error message' };
@@ -92,11 +120,20 @@ describe('Merge options', () => {
       imports: [
         HttpClient.forRoot({
           providers: [
-            { provide: HTTP_CLIENT_ROOT_GOT_OPTS, useValue: { retry: 3 } },
+            {
+              provide: FOR_ROOT__GOT_OPTS,
+              useValue: {
+                retry: {
+                  limit: 1,
+                  calculateDelay: calculateDelayMock,
+                },
+              },
+            },
           ],
         }),
         CatModule,
         DogModule,
+        RootModule,
       ],
     }).compile();
 
@@ -113,13 +150,18 @@ describe('Merge options', () => {
     nock.cleanAll();
   });
 
-  it('should retry once', async () => {
+  it('should get correct retry option from instance', async () => {
     await ctx.http.get('/cat/error');
-    expect(tryCounter).toBe(2);
+    expect(tryCounter).toBe(4);
   });
 
   it('should retry twice', async () => {
     await ctx.http.get('/dog/error');
     expect(tryCounter).toBe(3);
+  });
+
+  it('should get correct retry option from root', async () => {
+    await ctx.http.get('/root/error');
+    expect(tryCounter).toBe(1);
   });
 });

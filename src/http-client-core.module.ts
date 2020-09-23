@@ -2,8 +2,7 @@ import { DynamicModule, Global, Module } from '@nestjs/common';
 import http from 'http';
 import https from 'https';
 import { HttpClientForRootType } from './types/config.types';
-import { HTTP_CLIENT_ROOT_GOT_OPTS } from './di-token-constants';
-import { addDefaults } from './utils';
+import { DEFAULT__GOT_OPTS } from './di-token-constants';
 
 @Global()
 @Module({})
@@ -12,9 +11,9 @@ export class HttpClientCoreModule {
     imports = [],
     providers = [],
   }: HttpClientForRootType): DynamicModule {
-    const defaults = [
+    const defaultProviders = [
       {
-        provide: HTTP_CLIENT_ROOT_GOT_OPTS,
+        provide: DEFAULT__GOT_OPTS,
         useValue: {
           agent: {
             http: new http.Agent({ keepAlive: true }),
@@ -24,13 +23,11 @@ export class HttpClientCoreModule {
       },
     ];
 
-    const providersWithDefaults = addDefaults(providers, defaults);
-
     return {
       module: HttpClientCoreModule,
       imports,
-      providers: providersWithDefaults,
-      exports: providersWithDefaults,
+      providers: [...defaultProviders, ...providers],
+      exports: [...defaultProviders, ...providers],
     };
   }
 }
