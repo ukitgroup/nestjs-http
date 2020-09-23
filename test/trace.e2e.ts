@@ -12,7 +12,7 @@ import supertest from 'supertest';
 import nock from 'nock';
 import { HttpClient, HttpClientService } from '../src';
 import {
-  HTTP_CLIENT_INSTANCE_GOT_OPTS,
+  FOR_INSTANCE__GOT_OPTS,
   HTTP_CLIENT_SERVICE_CONFIG,
   TRACE_DATA_SERVICE,
 } from '../src/di-token-constants';
@@ -46,7 +46,10 @@ describe('Trace data service', () => {
       HttpClient.forInstance({
         imports: [ConfigModuleMock, TraceDataServiceModuleMock],
         providers: [
-          { provide: HTTP_CLIENT_INSTANCE_GOT_OPTS, useValue: { retry: 1 } },
+          {
+            provide: FOR_INSTANCE__GOT_OPTS,
+            useValue: { retry: { limit: 1 } },
+          },
           {
             provide: HTTP_CLIENT_SERVICE_CONFIG,
             useValue: {
