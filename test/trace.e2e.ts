@@ -13,7 +13,7 @@ import nock from 'nock';
 import { HttpClient, HttpClientService } from '../src';
 import {
   FOR_INSTANCE__GOT_OPTS,
-  HTTP_CLIENT_SERVICE_CONFIG,
+  FOR_INSTANCE__SERVICE_CONFIG,
   TRACE_DATA_SERVICE,
 } from '../src/di-token-constants';
 import { TraceDataServiceModuleMock } from './fixtures/trace-data-module/trace-data-module.mock';
@@ -51,7 +51,7 @@ describe('Trace data service', () => {
             useValue: { retry: { limit: 1 } },
           },
           {
-            provide: HTTP_CLIENT_SERVICE_CONFIG,
+            provide: FOR_INSTANCE__SERVICE_CONFIG,
             useValue: {
               ...httpServiceConfigMock,
               excludeHeaders: ['referrer'],

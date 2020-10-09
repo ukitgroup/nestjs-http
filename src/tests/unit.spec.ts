@@ -7,10 +7,10 @@ import { TraceDataServiceMock } from '../../test/fixtures/trace-data-module/trac
 import { TraceDataServiceModuleMock } from '../../test/fixtures/trace-data-module/trace-data-module.mock';
 
 import {
-  HTTP_CLIENT_INSTANCE_GOT_OPTS,
-  HTTP_CLIENT_ROOT_GOT_OPTS,
   TRACE_DATA_SERVICE,
-  HTTP_CLIENT_SERVICE_CONFIG,
+  FOR_ROOT__GOT_OPTS,
+  FOR_INSTANCE__GOT_OPTS,
+  FOR_ROOT__SERVICE_CONFIG,
 } from '../di-token-constants';
 
 describe('HttpClient', () => {
@@ -27,6 +27,7 @@ describe('HttpClient', () => {
             },
           ],
         }),
+        HttpClient.forInstance(),
       ],
     }).compile();
 
@@ -48,6 +49,7 @@ describe('HttpClient', () => {
             },
           ],
         }),
+        HttpClient.forInstance(),
       ],
     }).compile();
 
@@ -70,11 +72,12 @@ describe('HttpClient', () => {
               useClass: TraceDataServiceMock,
             },
             {
-              provide: HTTP_CLIENT_SERVICE_CONFIG,
+              provide: FOR_ROOT__SERVICE_CONFIG,
               useValue: serviceConfigWithDisabledTraceService,
             },
           ],
         }),
+        HttpClient.forInstance(),
       ],
     }).compile();
 
@@ -93,11 +96,12 @@ describe('HttpClient', () => {
           imports: [TraceDataServiceModuleMock],
           providers: [
             {
-              provide: HTTP_CLIENT_SERVICE_CONFIG,
+              provide: FOR_ROOT__SERVICE_CONFIG,
               useValue: serviceConfigWithEnabledTraceService,
             },
           ],
         }),
+        HttpClient.forInstance(),
       ],
     }).compile();
 
@@ -119,11 +123,12 @@ describe('HttpClient', () => {
           imports: [TraceDataServiceModuleMock],
           providers: [
             {
-              provide: HTTP_CLIENT_SERVICE_CONFIG,
+              provide: FOR_ROOT__SERVICE_CONFIG,
               useValue: serviceConfigWithDisabledTraceService,
             },
           ],
         }),
+        HttpClient.forInstance(),
       ],
     }).compile();
 
@@ -148,11 +153,12 @@ describe('HttpClient', () => {
           imports: [TraceDataServiceModuleMock],
           providers: [
             {
-              provide: HTTP_CLIENT_SERVICE_CONFIG,
+              provide: FOR_ROOT__SERVICE_CONFIG,
               useValue: serviceConfigWithDisabledTraceService,
             },
           ],
         }),
+        HttpClient.forInstance(),
       ],
     }).compile();
 
@@ -166,11 +172,12 @@ describe('HttpClient', () => {
         HttpClient.forRoot({
           providers: [
             {
-              provide: HTTP_CLIENT_ROOT_GOT_OPTS,
+              provide: FOR_ROOT__GOT_OPTS,
               useValue: { timeout: 999, retry: 5 },
             },
           ],
         }),
+        HttpClient.forInstance(),
       ],
     }).compile();
 
@@ -179,39 +186,17 @@ describe('HttpClient', () => {
         HttpClient.forInstance({
           providers: [
             {
-              provide: HTTP_CLIENT_INSTANCE_GOT_OPTS,
+              provide: FOR_INSTANCE__GOT_OPTS,
               useValue: { retry: 10 },
             },
           ],
         }),
+        HttpClient.forRoot(),
       ],
     }).compile();
 
     const { clientOpts } = innerModuleRef.get(HttpClientService);
     expect(clientOpts.retry.limit).toEqual(10);
     expect(clientOpts.timeout.request).toEqual(999);
-  });
-
-  it('Test http service applying between forRoot init and forInstance', async () => {
-    await Test.createTestingModule({
-      imports: [
-        HttpClient.forRoot({
-          providers: [
-            {
-              provide: HTTP_CLIENT_SERVICE_CONFIG,
-              useValue: httpServiceConfigMock,
-            },
-          ],
-        }),
-      ],
-    }).compile();
-
-    const innerModuleRef = await Test.createTestingModule({
-      imports: [HttpClient.forInstance({})],
-    }).compile();
-
-    const { serviceConfig } = innerModuleRef.get(HttpClientService);
-
-    expect(serviceConfig).toEqual(httpServiceConfigMock);
   });
 });

@@ -1,26 +1,21 @@
-import { merge } from 'lodash';
 import got, { Got } from 'got';
 import { Inject, Optional } from '@nestjs/common';
-import {
-  GOT_INSTANCE,
-  TRACE_DATA_SERVICE,
-  HTTP_CLIENT_SERVICE_CONFIG,
-} from './di-token-constants';
-import { httpServiceConfigDefaults } from './http-client.config.defaults';
+import { GOT_INSTANCE, TRACE_DATA_SERVICE } from './di-token-constants';
 import { ServiceConfigType, HttpClientOptionsType } from './types/config.types';
 import { TraceDataServiceInterface } from './types/trace-data-service.interface';
+import { HttpServiceConfigProvider } from './http-service-config.provider';
 
 export class HttpClientService {
+  private readonly clientConfig: ServiceConfigType;
+
   constructor(
     @Inject(GOT_INSTANCE) private readonly gotInstance: Got = got,
     @Optional()
     @Inject(TRACE_DATA_SERVICE)
     private readonly traceDataService: TraceDataServiceInterface,
-    @Optional()
-    @Inject(HTTP_CLIENT_SERVICE_CONFIG)
-    private readonly serviceOpts: ServiceConfigType,
+    private readonly httpServiceConfigProvider: HttpServiceConfigProvider,
   ) {
-    this.serviceOpts = merge(httpServiceConfigDefaults, this.serviceOpts);
+    this.clientConfig = this.httpServiceConfigProvider.getConfig();
   }
 
   get(
@@ -101,7 +96,7 @@ export class HttpClientService {
     }
     const traceData = this.traceDataService.getRequestData();
 
-    const { headersMap, excludeHeaders } = this.serviceOpts;
+    const { headersMap, excludeHeaders } = this.clientConfig;
 
     return Object.entries(headersMap).reduce((acc, [propName, headerName]) => {
       if (excludeHeaders.includes(headerName)) {
@@ -113,12 +108,12 @@ export class HttpClientService {
   }
 
   get shouldTraceServiceInvoke() {
-    if (this.serviceOpts.enableTraceService && !this.traceDataService) {
+    if (this.clientConfig.enableTraceService && !this.traceDataService) {
       throw new Error(
         "You had enabled usage of TraceDataService, but didn't passed it",
       );
     }
-    return this.serviceOpts.enableTraceService && this.traceDataService;
+    return this.clientConfig.enableTraceService && this.traceDataService;
   }
 
   get clientOpts() {
@@ -126,6 +121,6 @@ export class HttpClientService {
   }
 
   get serviceConfig() {
-    return this.serviceOpts;
+    return this.clientConfig;
   }
 }

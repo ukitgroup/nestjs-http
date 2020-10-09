@@ -1,4 +1,4 @@
-import { Inject, Optional } from '@nestjs/common';
+import { Inject, Injectable, Optional } from '@nestjs/common';
 import { merge } from 'lodash';
 
 import { Options } from 'got';
@@ -8,6 +8,7 @@ import {
   FOR_ROOT__GOT_OPTS,
 } from './di-token-constants';
 
+@Injectable()
 export class GotConfigProvider {
   constructor(
     @Inject(DEFAULT__GOT_OPTS)
