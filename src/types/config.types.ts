@@ -14,11 +14,11 @@ export type HttpClientForRootType = {
 };
 
 export type ServiceConfigType = {
-  enableTraceService: boolean;
-  headersMap: {
+  enableTraceService?: boolean;
+  headersMap?: {
     [key: string]: string;
   };
-  excludeHeaders: Array<string>;
+  excludeHeaders?: Array<string>;
 };
 
 export type HttpClientOptionsType = Options;
