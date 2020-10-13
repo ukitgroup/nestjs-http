@@ -1,13 +1,15 @@
-export function addDefaults(providers, defaults) {
-  const providersList = [...providers];
-  defaults.forEach(providerDefault => {
-    const { provide } = providerDefault;
-    const passedProvider = providers.find(
-      provider => provider.provide === provide,
-    );
-    if (!passedProvider) {
-      providersList.push(providerDefault);
-    }
-  });
-  return providersList;
+import { Provider } from '@nestjs/common';
+
+export function uniqueProvidersByToken(providers: Provider[]): Provider[] {
+  return [
+    ...new Map(
+      providers.map(provider => {
+        const token =
+          // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+          // @ts-ignore
+          typeof provider.provide !== 'undefined' ? provider.provide : provider;
+        return [token, provider];
+      }),
+    ).values(),
+  ];
 }
