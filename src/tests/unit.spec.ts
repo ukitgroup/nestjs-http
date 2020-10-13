@@ -166,7 +166,7 @@ describe('HttpClient', () => {
     expect(serviceConfig).toEqual(expectedConfig);
   });
 
-  it('Test merge options between forRoot and forInstance', async () => {
+  it('dynamic modules has different scopes', async () => {
     await Test.createTestingModule({
       imports: [
         HttpClient.forRoot({
@@ -197,6 +197,33 @@ describe('HttpClient', () => {
 
     const { clientOpts } = innerModuleRef.get(HttpClientService);
     expect(clientOpts.retry.limit).toEqual(10);
+    expect(clientOpts.timeout.request).toEqual(999);
+  });
+
+  it('For instance has priority', async () => {
+    const module = await Test.createTestingModule({
+      imports: [
+        HttpClient.forRoot({
+          providers: [
+            {
+              provide: FOR_ROOT__GOT_OPTS,
+              useValue: { timeout: 999, retry: 5 },
+            },
+          ],
+        }),
+        HttpClient.forInstance({
+          providers: [
+            {
+              provide: FOR_INSTANCE__GOT_OPTS,
+              useValue: { timeout: 999, retry: 1 },
+            },
+          ],
+        }),
+      ],
+    }).compile();
+
+    const { clientOpts } = module.get(HttpClientService);
+    expect(clientOpts.retry.limit).toEqual(1);
     expect(clientOpts.timeout.request).toEqual(999);
   });
 });
