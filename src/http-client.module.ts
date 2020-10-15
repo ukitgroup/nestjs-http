@@ -1,11 +1,17 @@
 import got from 'got';
-import { DynamicModule, Module } from '@nestjs/common';
+import { DynamicModule, Module, Provider } from '@nestjs/common';
 import { HttpClientForRootType } from './types/config.types';
 import { HttpClientCoreModule } from './http-client-core.module';
-import { GOT_INSTANCE } from './di-token-constants';
+import {
+  FOR_INSTANCE__GOT_OPTS,
+  FOR_INSTANCE__SERVICE_CONFIG,
+  GOT_INSTANCE,
+} from './di-token-constants';
 import { HttpClientService } from './http-client.service';
 import { GotConfigProvider } from './got-config.provider';
 import { HttpServiceConfigProvider } from './http-service-config.provider';
+import { GOT_CONFIG, HTTP_SERVICE_CONFIG } from './public-di-token.constants';
+import { uniqueProvidersByToken } from './utils';
 
 @Module({})
 export class HttpClient {
@@ -31,16 +37,52 @@ export class HttpClient {
       },
       inject: [GotConfigProvider],
     };
+
+    const allProviders: Provider[] = [];
+
+    const forInstanceGotConfigProvider = providers.find(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // @ts-ignore
+      p => p.provide && p.provide === GOT_CONFIG,
+    );
+
+    const forInstanceHTTPServiceProvider = providers.find(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // @ts-ignore
+      p => p.provide && p.provide === HTTP_SERVICE_CONFIG,
+    );
+
+    if (forInstanceGotConfigProvider) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // @ts-ignore
+      allProviders.push({
+        ...forInstanceGotConfigProvider,
+        provide: FOR_INSTANCE__GOT_OPTS,
+      });
+    }
+
+    if (forInstanceHTTPServiceProvider) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // @ts-ignore
+      allProviders.push({
+        ...forInstanceHTTPServiceProvider,
+        provide: FOR_INSTANCE__SERVICE_CONFIG,
+      });
+    }
+
+    const uniqueProviders = uniqueProvidersByToken([
+      ...allProviders,
+      ...providers,
+      gotProviderFactory,
+      HttpServiceConfigProvider,
+      GotConfigProvider,
+      HttpClientService,
+    ]);
+
     return {
       module: HttpClient,
       imports,
-      providers: [
-        ...providers,
-        gotProviderFactory,
-        HttpServiceConfigProvider,
-        GotConfigProvider,
-        HttpClientService,
-      ],
+      providers: uniqueProviders,
       exports: [HttpClientService],
     };
   }

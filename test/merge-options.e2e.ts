@@ -11,11 +11,8 @@ import { Got } from 'got';
 import supertest from 'supertest';
 import nock from 'nock';
 import { HttpClient, HttpClientService } from '../src';
-import {
-  FOR_INSTANCE__GOT_OPTS,
-  FOR_ROOT__GOT_OPTS,
-} from '../src/di-token-constants';
 import { calculateDelayMock } from './fixtures/got-mock';
+import { GOT_CONFIG } from '../src/public-di-token.constants';
 
 describe('Use different options for GOT in different modules', () => {
   const mockUrl = 'http://example.domain';
@@ -61,7 +58,7 @@ describe('Use different options for GOT in different modules', () => {
       HttpClient.forInstance({
         providers: [
           {
-            provide: FOR_INSTANCE__GOT_OPTS,
+            provide: GOT_CONFIG,
             useValue: { retry: { limit: 4 } },
           },
         ],
@@ -97,7 +94,7 @@ describe('Use different options for GOT in different modules', () => {
       HttpClient.forInstance({
         providers: [
           {
-            provide: FOR_INSTANCE__GOT_OPTS,
+            provide: GOT_CONFIG,
             useValue: { retry: { limit: 3 } },
           },
         ],
@@ -121,7 +118,7 @@ describe('Use different options for GOT in different modules', () => {
         HttpClient.forRoot({
           providers: [
             {
-              provide: FOR_ROOT__GOT_OPTS,
+              provide: GOT_CONFIG,
               useValue: {
                 retry: {
                   limit: 1,

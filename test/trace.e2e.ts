@@ -12,10 +12,10 @@ import supertest from 'supertest';
 import nock from 'nock';
 import { HttpClient, HttpClientService } from '../src';
 import {
-  FOR_INSTANCE__GOT_OPTS,
-  FOR_INSTANCE__SERVICE_CONFIG,
+  GOT_CONFIG,
+  HTTP_SERVICE_CONFIG,
   TRACE_DATA_SERVICE,
-} from '../src/di-token-constants';
+} from '../src/public-di-token.constants';
 import { TraceDataServiceModuleMock } from './fixtures/trace-data-module/trace-data-module.mock';
 import { TraceDataServiceMock } from './fixtures/trace-data-module/trace-data-service.mock';
 import { ConfigModuleMock } from './fixtures/config-module/config-module.mock';
@@ -47,11 +47,11 @@ describe('Trace data service', () => {
         imports: [ConfigModuleMock, TraceDataServiceModuleMock],
         providers: [
           {
-            provide: FOR_INSTANCE__GOT_OPTS,
+            provide: GOT_CONFIG,
             useValue: { retry: { limit: 1 } },
           },
           {
-            provide: FOR_INSTANCE__SERVICE_CONFIG,
+            provide: HTTP_SERVICE_CONFIG,
             useValue: {
               ...httpServiceConfigMock,
               excludeHeaders: ['referrer'],

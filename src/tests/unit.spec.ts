@@ -5,13 +5,11 @@ import { HttpClientService } from '../http-client.service';
 
 import { TraceDataServiceMock } from '../../test/fixtures/trace-data-module/trace-data-service.mock';
 import { TraceDataServiceModuleMock } from '../../test/fixtures/trace-data-module/trace-data-module.mock';
-
 import {
+  GOT_CONFIG,
+  HTTP_SERVICE_CONFIG,
   TRACE_DATA_SERVICE,
-  FOR_ROOT__GOT_OPTS,
-  FOR_INSTANCE__GOT_OPTS,
-  FOR_ROOT__SERVICE_CONFIG,
-} from '../di-token-constants';
+} from '../public-di-token.constants';
 
 describe('HttpClient', () => {
   it('Test HttpService has all http methods', async () => {
@@ -72,7 +70,7 @@ describe('HttpClient', () => {
               useClass: TraceDataServiceMock,
             },
             {
-              provide: FOR_ROOT__SERVICE_CONFIG,
+              provide: HTTP_SERVICE_CONFIG,
               useValue: serviceConfigWithDisabledTraceService,
             },
           ],
@@ -96,7 +94,7 @@ describe('HttpClient', () => {
           imports: [TraceDataServiceModuleMock],
           providers: [
             {
-              provide: FOR_ROOT__SERVICE_CONFIG,
+              provide: HTTP_SERVICE_CONFIG,
               useValue: serviceConfigWithEnabledTraceService,
             },
           ],
@@ -123,7 +121,7 @@ describe('HttpClient', () => {
           imports: [TraceDataServiceModuleMock],
           providers: [
             {
-              provide: FOR_ROOT__SERVICE_CONFIG,
+              provide: HTTP_SERVICE_CONFIG,
               useValue: serviceConfigWithDisabledTraceService,
             },
           ],
@@ -153,7 +151,7 @@ describe('HttpClient', () => {
           imports: [TraceDataServiceModuleMock],
           providers: [
             {
-              provide: FOR_ROOT__SERVICE_CONFIG,
+              provide: HTTP_SERVICE_CONFIG,
               useValue: serviceConfigWithDisabledTraceService,
             },
           ],
@@ -172,7 +170,7 @@ describe('HttpClient', () => {
         HttpClient.forRoot({
           providers: [
             {
-              provide: FOR_ROOT__GOT_OPTS,
+              provide: GOT_CONFIG,
               useValue: { timeout: 999, retry: 5 },
             },
           ],
@@ -186,7 +184,7 @@ describe('HttpClient', () => {
         HttpClient.forInstance({
           providers: [
             {
-              provide: FOR_INSTANCE__GOT_OPTS,
+              provide: GOT_CONFIG,
               useValue: { retry: 10 },
             },
           ],
@@ -206,7 +204,7 @@ describe('HttpClient', () => {
         HttpClient.forRoot({
           providers: [
             {
-              provide: FOR_ROOT__GOT_OPTS,
+              provide: GOT_CONFIG,
               useValue: { timeout: 999, retry: 5 },
             },
           ],
@@ -214,7 +212,7 @@ describe('HttpClient', () => {
         HttpClient.forInstance({
           providers: [
             {
-              provide: FOR_INSTANCE__GOT_OPTS,
+              provide: GOT_CONFIG,
               useValue: { timeout: 999, retry: 1 },
             },
           ],
