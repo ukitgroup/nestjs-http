@@ -19,11 +19,13 @@
 ### Rich featured HttpClient for [nestjs](https://nestjs.com/) applications
 
 - [Got](https://www.npmjs.com/package/got) integration for `nestjs`;
-- Accept external `Tracing Service` for attaching specific http-headers across your microservice architecture;
+- Retries and all `Got` functions out of the box
+- Transparent `Got` usage (you will work with Got interface)
+- Accept external `Tracing Service` via DI for attaching specific http-headers across your microservice architecture;
 - Modularity - create instances for your modules with different configurations;
 - Default keep-alive http/https agent.
 
-## Instalation
+## Installation
 
 ```bash
 npm install --save @ukitgroup/nestjs-http
@@ -38,6 +40,7 @@ yarn add @ukitgroup/nestjs-http
 ## Short example
 
 **cat.service.ts**
+
 ```typescript
 @Injectable()
 export class CatService {
@@ -54,16 +57,18 @@ export class CatService {
 ```
 
 **cat.module.ts**
+
 ```typescript
 @Module({
   imports: [
     HttpClient.forInstance({
       imports: [YourConfigModule],
       providers: [
-        { // override got configuration
+        {
+          // override got configuration
           provide: HTTP_CLIENT_INSTANCE_GOT_OPTS,
           inject: [YourConfig],
-          useFactory: (config) => {
+          useFactory: config => {
             return {
               retry: config.retry,
             };
@@ -78,12 +83,10 @@ export class CatModule {}
 ```
 
 **app.module.ts**
+
 ```typescript
 @Module({
-  imports: [
-    HttpClient.forRoot({}),
-    CatModule,
-  ],
+  imports: [HttpClient.forRoot({}), CatModule],
 })
 export class AppModule {}
 ```
@@ -104,10 +107,39 @@ HttpClientForRootType: {
 ```
 
 Provide configuration with tokens:
-- `HTTP_CLIENT_SERVICE_CONFIG` - ServiceConfigType for HttpClientService
+
+- `HTTP_SERVICE_CONFIG` - ServiceConfigType for HttpClientService
 - `TRACE_DATA_SERVICE` - should implements TraceDataServiceInterface
-- `HTTP_CLIENT_ROOT_GOT_OPTS` - got root configuration
-- `HTTP_CLIENT_INSTANCE_GOT_OPTS` - got instance configuration
+- `GOT_CONFIG` - got configuration
+
+Provided configuration will be merged:
+defaultConfig -> forRoot() -> forInstance() -> execution
+
+default config for httpService:
+
+```typescript
+const defaultConfig = {
+  enableTraceService: false,
+  headersMap: {
+    traceId: 'x-trace-id',
+    ip: 'x-real-ip',
+    userAgent: 'user-agent',
+    referrer: 'referrer',
+  },
+  excludeHeaders: [],
+};
+```
+
+default config for got extends default config from [got documentation](https://github.com/sindresorhus/got)
+
+```typescript
+const defaultConfig = {
+  agent: {
+    http: new http.Agent({ keepAlive: true }),
+    https: new https.Agent({ keepAlive: true }),
+  },
+};
+```
 
 Define instance configuration, trace service and http client service config in your module with:
 
@@ -116,8 +148,10 @@ HttpClient.forInstance(options: HttpClientForRootType)
 ```
 
 ## Requirements
+
 1. @nestjs/common ^7.2.0
 2. @nestjs/core ^7.2.0
 
 ## License
+
 @ukitgroup/nestjs-http is [MIT licensed](LICENSE).
