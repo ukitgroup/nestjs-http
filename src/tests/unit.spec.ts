@@ -195,7 +195,6 @@ describe('HttpClient', () => {
 
     const { clientOpts } = innerModuleRef.get(HttpClientService);
     expect(clientOpts.retry.limit).toEqual(10);
-    expect(clientOpts.timeout.request).toEqual(999);
   });
 
   it('For instance has priority', async () => {
@@ -223,5 +222,15 @@ describe('HttpClient', () => {
     const { clientOpts } = module.get(HttpClientService);
     expect(clientOpts.retry.limit).toEqual(1);
     expect(clientOpts.timeout.request).toEqual(999);
+  });
+
+  it('Should use default values if nothing overridden', async () => {
+    const module = await Test.createTestingModule({
+      imports: [HttpClient.forRoot(), HttpClient.forInstance()],
+    }).compile();
+
+    const service = module.get(HttpClientService);
+    expect(service.clientOpts.retry.limit).toEqual(2);
+    expect(service.serviceConfig.enableTraceService).toEqual(false);
   });
 });

@@ -23,6 +23,7 @@ export class HttpServiceConfigProvider {
 
   getConfig(): ServiceConfigType {
     return merge(
+      {},
       this.defaultServiceConfig,
       this.forRootServiceConfig,
       this.forInstanceServiceConfig,

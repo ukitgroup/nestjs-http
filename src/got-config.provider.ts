@@ -23,6 +23,7 @@ export class GotConfigProvider {
 
   getConfig(): Options {
     return merge(
+      {},
       this.defaultGotConfig,
       this.forRootGotConfig,
       this.forInstanceGotConfig,
