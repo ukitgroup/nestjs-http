@@ -147,6 +147,69 @@ Define instance configuration, trace service and http client service config in y
 HttpClient.forInstance(options: HttpClientForRootType)
 ```
 
+# Trace service injection
+
+Usually you pass some headers across your microservices such ass: `trace-id`, `ip`, `user-agent` etc.
+To make it convenient you can inject traceService via `dependency injection` and `HTTPClient` will pass this data with headers
+
+You just have to implement TraceServiceInterface:
+
+```typescript
+export interface TraceDataServiceInterface {
+  getRequestData(): TraceDataType;
+}
+
+// and TraceDataType
+export type TraceDataType = {
+  [key: string]: string;
+};
+```
+
+Headers mapping to values:
+
+```typescript
+const headersMap = {
+  traceId: 'x-trace-id',
+  ip: 'x-real-ip',
+  userAgent: 'user-agent',
+  referrer: 'referrer',
+};
+```
+
+Sou you can just define you service which should return these fields. For example you can use `cls-hooked` for retrieving request data
+
+```typescript
+export class TraceService implements TraceDataServiceInterface {
+  getRequestData() {
+    return {
+      traceId: 'unique-id',
+      ip: '127.0.0.1',
+    };
+  }
+}
+```
+
+And then just define configuration:
+
+```typescript
+@Module({
+  imports: [
+    HttpClient.forInstance({
+      providers: [
+        {
+          provide: HTTP_SERVICE_CONFIG,
+          useValue: {
+            enableTraceService: true,
+          },
+        },
+        { provide: TRACE_DATA_SERVICE, useClass: TraceService },
+      ],
+    }),
+  ],
+})
+class AwesomeModule {}
+```
+
 ## Requirements
 
 1. @nestjs/common ^7.2.0
