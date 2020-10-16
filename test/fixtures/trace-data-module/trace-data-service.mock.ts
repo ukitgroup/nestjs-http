@@ -1,4 +1,4 @@
-import { TraceDataServiceInterface } from '../../types/trace-data-service.interface';
+import { TraceDataServiceInterface } from '../../../src/types/trace-data-service.interface';
 
 export type TraceMockDataType = {
   traceId: string;

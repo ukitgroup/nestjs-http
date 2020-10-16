@@ -1,17 +1,15 @@
 import { Test } from '@nestjs/testing';
-import { httpServiceConfigMock } from '../mocks/config-module/config-module.config.mock';
+import { httpServiceConfigMock } from '../../test/fixtures/config-module/config-module.config.mock';
 import { HttpClient } from '../http-client.module';
 import { HttpClientService } from '../http-client.service';
 
-import { TraceDataServiceMock } from '../mocks/trace-data-module/trace-data-service.mock';
-import { TraceDataServiceModuleMock } from '../mocks/trace-data-module/trace-data-module.mock';
-
+import { TraceDataServiceMock } from '../../test/fixtures/trace-data-module/trace-data-service.mock';
+import { TraceDataServiceModuleMock } from '../../test/fixtures/trace-data-module/trace-data-module.mock';
 import {
-  HTTP_CLIENT_INSTANCE_GOT_OPTS,
-  HTTP_CLIENT_ROOT_GOT_OPTS,
+  GOT_CONFIG,
+  HTTP_SERVICE_CONFIG,
   TRACE_DATA_SERVICE,
-  HTTP_CLIENT_SERVICE_CONFIG,
-} from '../di-token-constants';
+} from '../public-di-token.constants';
 
 describe('HttpClient', () => {
   it('Test HttpService has all http methods', async () => {
@@ -27,6 +25,7 @@ describe('HttpClient', () => {
             },
           ],
         }),
+        HttpClient.forInstance(),
       ],
     }).compile();
 
@@ -48,6 +47,7 @@ describe('HttpClient', () => {
             },
           ],
         }),
+        HttpClient.forInstance(),
       ],
     }).compile();
 
@@ -70,11 +70,12 @@ describe('HttpClient', () => {
               useClass: TraceDataServiceMock,
             },
             {
-              provide: HTTP_CLIENT_SERVICE_CONFIG,
+              provide: HTTP_SERVICE_CONFIG,
               useValue: serviceConfigWithDisabledTraceService,
             },
           ],
         }),
+        HttpClient.forInstance(),
       ],
     }).compile();
 
@@ -93,11 +94,12 @@ describe('HttpClient', () => {
           imports: [TraceDataServiceModuleMock],
           providers: [
             {
-              provide: HTTP_CLIENT_SERVICE_CONFIG,
+              provide: HTTP_SERVICE_CONFIG,
               useValue: serviceConfigWithEnabledTraceService,
             },
           ],
         }),
+        HttpClient.forInstance(),
       ],
     }).compile();
 
@@ -119,11 +121,12 @@ describe('HttpClient', () => {
           imports: [TraceDataServiceModuleMock],
           providers: [
             {
-              provide: HTTP_CLIENT_SERVICE_CONFIG,
+              provide: HTTP_SERVICE_CONFIG,
               useValue: serviceConfigWithDisabledTraceService,
             },
           ],
         }),
+        HttpClient.forInstance(),
       ],
     }).compile();
 
@@ -148,11 +151,12 @@ describe('HttpClient', () => {
           imports: [TraceDataServiceModuleMock],
           providers: [
             {
-              provide: HTTP_CLIENT_SERVICE_CONFIG,
+              provide: HTTP_SERVICE_CONFIG,
               useValue: serviceConfigWithDisabledTraceService,
             },
           ],
         }),
+        HttpClient.forInstance(),
       ],
     }).compile();
 
@@ -160,17 +164,18 @@ describe('HttpClient', () => {
     expect(serviceConfig).toEqual(expectedConfig);
   });
 
-  it('Test merge options between forRoot and forInstance', async () => {
+  it('dynamic modules has different scopes', async () => {
     await Test.createTestingModule({
       imports: [
         HttpClient.forRoot({
           providers: [
             {
-              provide: HTTP_CLIENT_ROOT_GOT_OPTS,
+              provide: GOT_CONFIG,
               useValue: { timeout: 999, retry: 5 },
             },
           ],
         }),
+        HttpClient.forInstance(),
       ],
     }).compile();
 
@@ -179,39 +184,53 @@ describe('HttpClient', () => {
         HttpClient.forInstance({
           providers: [
             {
-              provide: HTTP_CLIENT_INSTANCE_GOT_OPTS,
+              provide: GOT_CONFIG,
               useValue: { retry: 10 },
             },
           ],
         }),
+        HttpClient.forRoot(),
       ],
     }).compile();
 
     const { clientOpts } = innerModuleRef.get(HttpClientService);
     expect(clientOpts.retry.limit).toEqual(10);
-    expect(clientOpts.timeout.request).toEqual(999);
   });
 
-  it('Test http service applying between forRoot init and forInstance', async () => {
-    await Test.createTestingModule({
+  it('For instance has priority', async () => {
+    const module = await Test.createTestingModule({
       imports: [
         HttpClient.forRoot({
           providers: [
             {
-              provide: HTTP_CLIENT_SERVICE_CONFIG,
-              useValue: httpServiceConfigMock,
+              provide: GOT_CONFIG,
+              useValue: { timeout: 999, retry: 5 },
+            },
+          ],
+        }),
+        HttpClient.forInstance({
+          providers: [
+            {
+              provide: GOT_CONFIG,
+              useValue: { timeout: 999, retry: 1 },
             },
           ],
         }),
       ],
     }).compile();
 
-    const innerModuleRef = await Test.createTestingModule({
-      imports: [HttpClient.forInstance({})],
+    const { clientOpts } = module.get(HttpClientService);
+    expect(clientOpts.retry.limit).toEqual(1);
+    expect(clientOpts.timeout.request).toEqual(999);
+  });
+
+  it('Should use default values if nothing overridden', async () => {
+    const module = await Test.createTestingModule({
+      imports: [HttpClient.forRoot(), HttpClient.forInstance()],
     }).compile();
 
-    const { serviceConfig } = innerModuleRef.get(HttpClientService);
-
-    expect(serviceConfig).toEqual(httpServiceConfigMock);
+    const service = module.get(HttpClientService);
+    expect(service.clientOpts.retry.limit).toEqual(2);
+    expect(service.serviceConfig.enableTraceService).toEqual(false);
   });
 });

@@ -1,4 +1,6 @@
-export const httpServiceConfigDefaults = {
+import { ServiceConfigType } from './types/config.types';
+
+export const httpServiceConfigDefaults: ServiceConfigType = {
   enableTraceService: false,
   headersMap: {
     traceId: 'x-trace-id',

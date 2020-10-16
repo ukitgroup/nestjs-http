@@ -1,109 +1,88 @@
 import got from 'got';
-import { merge } from 'lodash';
-import { DynamicModule } from '@nestjs/common';
-import { HttpClientService } from './http-client.service';
+import { DynamicModule, Module, Provider } from '@nestjs/common';
 import { HttpClientForRootType } from './types/config.types';
-import { httpServiceConfigDefaults } from './http-client.config.defaults';
-
+import { HttpClientCoreModule } from './http-client-core.module';
 import {
+  FOR_INSTANCE__GOT_OPTS,
+  FOR_INSTANCE__SERVICE_CONFIG,
   GOT_INSTANCE,
-  HTTP_CLIENT_ROOT_GOT_OPTS,
-  HTTP_CLIENT_INSTANCE_GOT_OPTS,
-  HTTP_CLIENT_SERVICE_CONFIG,
 } from './di-token-constants';
+import { HttpClientService } from './http-client.service';
+import { GotConfigProvider } from './got-config.provider';
+import { HttpServiceConfigProvider } from './http-service-config.provider';
+import { GOT_CONFIG, HTTP_SERVICE_CONFIG } from './public-di-token.constants';
+import { uniqueProvidersByToken } from './utils';
 
-const globalState = {
-  imports: [],
-  providers: [],
-};
-
-function addDefaults(providers, defaults) {
-  const providersList = [...providers];
-  defaults.forEach(providerDefault => {
-    const { provide } = providerDefault;
-    const passedProvider = providers.find(
-      provider => provider.provide === provide,
-    );
-    if (!passedProvider) {
-      providersList.push(providerDefault);
-    }
-  });
-  return providersList;
-}
-
+@Module({})
 export class HttpClient {
   static forRoot({
     imports = [],
     providers = [],
-  }: HttpClientForRootType): DynamicModule {
-    const defaults = [
-      {
-        provide: HTTP_CLIENT_ROOT_GOT_OPTS,
-        useValue: {},
-      },
-      {
-        provide: HTTP_CLIENT_SERVICE_CONFIG,
-        useValue: httpServiceConfigDefaults,
-      },
-    ];
-
-    const providersWithDefaults = addDefaults(providers, defaults);
-
-    globalState.imports = imports;
-    globalState.providers = providersWithDefaults;
-
-    const gotProviderFactory = {
-      provide: GOT_INSTANCE,
-      useFactory: (clientRootOpts = {}) => {
-        return got.extend(clientRootOpts);
-      },
-      inject: [HTTP_CLIENT_ROOT_GOT_OPTS],
-    };
-
+  }: HttpClientForRootType = {}): DynamicModule {
     return {
       module: HttpClient,
-      imports,
-      providers: [
-        ...globalState.providers,
-        HttpClientService,
-        gotProviderFactory,
-      ],
-      exports: [HttpClientService],
+      imports: [HttpClientCoreModule.forRoot({ imports, providers })],
     };
   }
 
   static forInstance({
     imports = [],
     providers = [],
-  }: HttpClientForRootType): DynamicModule {
-    const defaults = [
-      {
-        provide: HTTP_CLIENT_INSTANCE_GOT_OPTS,
-        useValue: {},
-      },
-    ];
-    const providersWithDefaults = addDefaults(providers, defaults);
-    const providersWithGlobals = [
-      ...providersWithDefaults,
-      ...globalState.providers,
-    ];
-
+  }: HttpClientForRootType = {}): DynamicModule {
     const gotProviderFactory = {
       provide: GOT_INSTANCE,
-      useFactory: (globalOpts = {}, clientOpts = {}) => {
-        return got.extend(merge(globalOpts, clientOpts));
+      useFactory: (gotConfigProvider: GotConfigProvider) => {
+        const config = gotConfigProvider.getConfig();
+        return got.extend(config);
       },
-      inject: [HTTP_CLIENT_ROOT_GOT_OPTS, HTTP_CLIENT_INSTANCE_GOT_OPTS],
+      inject: [GotConfigProvider],
     };
 
+    const allProviders: Provider[] = [];
+
+    const forInstanceGotConfigProvider = providers.find(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // @ts-ignore
+      p => p.provide && p.provide === GOT_CONFIG,
+    );
+
+    const forInstanceHTTPServiceProvider = providers.find(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // @ts-ignore
+      p => p.provide && p.provide === HTTP_SERVICE_CONFIG,
+    );
+
+    if (forInstanceGotConfigProvider) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // @ts-ignore
+      allProviders.push({
+        ...forInstanceGotConfigProvider,
+        provide: FOR_INSTANCE__GOT_OPTS,
+      });
+    }
+
+    if (forInstanceHTTPServiceProvider) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // @ts-ignore
+      allProviders.push({
+        ...forInstanceHTTPServiceProvider,
+        provide: FOR_INSTANCE__SERVICE_CONFIG,
+      });
+    }
+
+    const uniqueProviders = uniqueProvidersByToken([
+      ...allProviders,
+      ...providers,
+      gotProviderFactory,
+      HttpServiceConfigProvider,
+      GotConfigProvider,
+      HttpClientService,
+    ]);
+
     return {
-      imports: [...globalState.imports, ...imports],
       module: HttpClient,
-      providers: [
-        ...providersWithGlobals,
-        HttpClientService,
-        gotProviderFactory,
-      ],
+      imports,
+      providers: uniqueProviders,
       exports: [HttpClientService],
     };
   }
