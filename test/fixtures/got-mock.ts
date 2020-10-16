@@ -1,4 +1,3 @@
 import { RetryObject } from 'got';
 
-export const calculateDelayMock = (obj: RetryObject) =>
-  obj.attemptCount >= obj.retryOptions.limit ? 0 : 10;
+export const calculateDelayMock = (obj: RetryObject) => obj.computedValue / 100;

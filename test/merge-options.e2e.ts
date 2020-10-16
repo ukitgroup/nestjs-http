@@ -5,6 +5,7 @@ import {
   INestApplication,
   Inject,
   Module,
+  Post,
 } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Got } from 'got';
@@ -87,6 +88,16 @@ describe('Use different options for GOT in different modules', () => {
         return err;
       }
     }
+
+    @Post('error')
+    @HttpCode(500)
+    private async postErrorHandler() {
+      try {
+        return await this.httpClient.post(`${mockUrl}/error`);
+      } catch (err) {
+        return err;
+      }
+    }
   }
 
   @Module({
@@ -107,6 +118,14 @@ describe('Use different options for GOT in different modules', () => {
   beforeEach(async () => {
     nock(mockUrl)
       .get('/error')
+      .times(20)
+      .reply(500, () => {
+        tryCounter += 1;
+        return { error: 'error message' };
+      });
+
+    nock(mockUrl)
+      .post('/error')
       .times(20)
       .reply(500, () => {
         tryCounter += 1;
@@ -149,16 +168,21 @@ describe('Use different options for GOT in different modules', () => {
 
   it('should get correct retry option from instance', async () => {
     await ctx.http.get('/cat/error');
-    expect(tryCounter).toBe(4);
+    expect(tryCounter).toBe(5);
   });
 
   it('should retry twice', async () => {
     await ctx.http.get('/dog/error');
-    expect(tryCounter).toBe(3);
+    expect(tryCounter).toBe(4);
   });
 
   it('should get correct retry option from root', async () => {
     await ctx.http.get('/root/error');
+    expect(tryCounter).toBe(2);
+  });
+
+  it('Should not retry with POST', async () => {
+    await ctx.http.post('/dog/error');
     expect(tryCounter).toBe(1);
   });
 });
