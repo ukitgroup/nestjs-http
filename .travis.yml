@@ -8,6 +8,7 @@ notifications:
   email:
     recipients:
       - laplandin.denis@gmail.com
+      - goodluckhf@yandex.tu
     on_success: never
     on_failure: always
 
