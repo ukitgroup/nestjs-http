@@ -115,7 +115,7 @@ export class HttpClientService {
         "You had enabled usage of TraceDataService, but didn't passed it",
       );
     }
-    return this.clientConfig.enableTraceService && this.traceDataService;
+    return !!(this.clientConfig.enableTraceService && this.traceDataService);
   }
 
   get clientOpts() {
