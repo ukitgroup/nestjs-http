@@ -7,9 +7,11 @@ import {
   FOR_ROOT__SERVICE_CONFIG,
 } from './di-token-constants';
 import { ServiceConfigType } from './types/config.types';
+import { HttpServiceConfigProviderInterface } from './http-service-config-provider.interface';
 
 @Injectable()
-export class HttpServiceConfigProvider {
+export class HttpServiceConfigProvider
+  implements HttpServiceConfigProviderInterface {
   constructor(
     @Inject(DEFAULT__SERVICE_CONFIG)
     private readonly defaultServiceConfig: ServiceConfigType,

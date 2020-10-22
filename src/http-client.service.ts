@@ -4,6 +4,7 @@ import { GOT_INSTANCE, TRACE_DATA_SERVICE } from './di-token-constants';
 import { ServiceConfigType, HttpClientOptionsType } from './types/config.types';
 import { TraceDataServiceInterface } from './types/trace-data-service.interface';
 import { HttpServiceConfigProvider } from './http-service-config.provider';
+import { HttpServiceConfigProviderInterface } from './http-service-config-provider.interface';
 
 export class HttpClientService {
   private readonly clientConfig: ServiceConfigType;
@@ -13,7 +14,8 @@ export class HttpClientService {
     @Optional()
     @Inject(TRACE_DATA_SERVICE)
     private readonly traceDataService: TraceDataServiceInterface,
-    private readonly httpServiceConfigProvider: HttpServiceConfigProvider,
+    @Inject(HttpServiceConfigProvider)
+    private readonly httpServiceConfigProvider: HttpServiceConfigProviderInterface,
   ) {
     this.clientConfig = this.httpServiceConfigProvider.getConfig();
   }
