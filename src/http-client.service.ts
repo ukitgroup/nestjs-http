@@ -1,4 +1,4 @@
-import got, { Got } from 'got';
+import { Got } from 'got';
 import { Inject, Optional } from '@nestjs/common';
 import { GOT_INSTANCE, TRACE_DATA_SERVICE } from './di-token-constants';
 import { ServiceConfigType, HttpClientOptionsType } from './types/config.types';
@@ -9,7 +9,7 @@ export class HttpClientService {
   private readonly clientConfig: ServiceConfigType;
 
   constructor(
-    @Inject(GOT_INSTANCE) private readonly gotInstance: Got = got,
+    @Inject(GOT_INSTANCE) private readonly gotInstance: Got,
     @Optional()
     @Inject(TRACE_DATA_SERVICE)
     private readonly traceDataService: TraceDataServiceInterface,
