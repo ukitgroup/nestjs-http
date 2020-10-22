@@ -24,6 +24,9 @@
     "nestjs"
   ],
   "author": "laplandin <laplandin.denis@gmail.com>",
+  "contributors": [
+    "Goodluckhf <Goodluckhf@yandex.ru>"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/ukitgroup/nestjs-http/issues"
