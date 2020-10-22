@@ -2,8 +2,8 @@
   "name": "@ukitgroup/nestjs-http",
   "version": "0.0.0",
   "description": "Http adapter for nestjs",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "build": "tsc --skipLibCheck -p tsconfig.build.json",
     "prebuild": "rimraf dist",
@@ -14,7 +14,7 @@
     "test:watch": "jest --watch --passWithNoTests",
     "test:cov": "jest --coverage --passWithNoTests",
     "report-coverage": "cat coverage/lcov.info | coveralls",
-    "semantic-release": "semantic-release"
+    "semantic-release": "cp ./package.json ./dist/package.json && cp ./README.md ./dist/README.md && cd ./dist && semantic-release"
   },
   "repository": {
     "type": "git",
