@@ -8,5 +8,4 @@ export const httpServiceConfigDefaults: ServiceConfigType = {
     userAgent: 'user-agent',
     referrer: 'referrer',
   },
-  excludeHeaders: [],
 };

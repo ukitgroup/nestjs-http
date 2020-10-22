@@ -86,4 +86,52 @@ describe('HTTP client service', () => {
       expect(service.shouldTraceServiceInvoke).toBeTruthy();
     });
   });
+
+  describe.each(['get', 'post', 'delete', 'head', 'put', 'patch'])(
+    'Method invocation: %s',
+    (method: string) => {
+      it('Should not add headers if shouldTraceServiceInvoke is disabled', () => {
+        ctx.gotInstance[method] = jest.fn();
+
+        const service = new HttpClientService(
+          ctx.gotInstance,
+          ctx.traceDataService,
+          ctx.httpServiceConfigProvider,
+        );
+
+        service[method]('');
+
+        expect(ctx.gotInstance[method]).toBeCalledWith('', { headers: {} });
+      });
+
+      it('Should add trace headers if shouldTraceServiceInvoke is enabled', () => {
+        ctx.gotInstance[method] = jest.fn();
+        ctx.httpServiceConfigProvider = {
+          getConfig(): ServiceConfigType {
+            return {
+              enableTraceService: true,
+              headersMap: {
+                traceId: 'x-trace-id',
+              },
+              excludeHeaders: [],
+            };
+          },
+        };
+
+        ctx.traceDataService.getRequestData = () => ({ traceId: 'testId' });
+
+        const service = new HttpClientService(
+          ctx.gotInstance,
+          ctx.traceDataService,
+          ctx.httpServiceConfigProvider,
+        );
+
+        service[method]('');
+
+        expect(ctx.gotInstance[method]).toBeCalledWith('', {
+          headers: { 'x-trace-id': 'testId' },
+        });
+      });
+    },
+  );
 });

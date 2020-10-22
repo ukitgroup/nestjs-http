@@ -98,12 +98,9 @@ export class HttpClientService {
     }
     const traceData = this.traceDataService.getRequestData();
 
-    const { headersMap, excludeHeaders } = this.clientConfig;
+    const { headersMap } = this.clientConfig;
 
     return Object.entries(headersMap).reduce((acc, [propName, headerName]) => {
-      if (excludeHeaders.includes(headerName)) {
-        return acc;
-      }
       acc[headerName] = traceData[propName];
       return acc;
     }, {});

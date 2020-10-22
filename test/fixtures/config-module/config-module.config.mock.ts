@@ -6,5 +6,4 @@ export const httpServiceConfigMock = {
     userAgent: 'user-agent',
     referrer: 'referrer',
   },
-  excludeHeaders: [],
 };
