@@ -25,6 +25,11 @@
 - Modularity - create instances for your modules with different configurations;
 - Default keep-alive http/https agent.
 
+## Requirements
+
+1. @nestjs/common ^7.2.0
+2. @nestjs/core ^7.2.0
+
 ## Installation
 
 ```bash
@@ -210,10 +215,11 @@ And then just define configuration:
 class AwesomeModule {}
 ```
 
-## Requirements
+### TODO
 
-1. @nestjs/common ^7.2.0
-2. @nestjs/core ^7.2.0
+- Injection of `MetricService` for exports requests metrics such as: statuses, errors, retries, timing
+- Client balancing for servers with several `ip`s or endpoints in different AZ which don't support server's LB.
+- ... Feature/Pull requests are welcome!😅
 
 ## License
 
