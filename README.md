@@ -154,7 +154,7 @@ HttpClient.forInstance(options: HttpClientForRootType)
 
 # Trace service injection
 
-Usually you pass some headers across your microservices such ass: `trace-id`, `ip`, `user-agent` etc.
+Usually you pass some headers across your microservices such as: `trace-id`, `ip`, `user-agent` etc.
 To make it convenient you can inject traceService via `dependency injection` and `HTTPClient` will pass this data with headers
 
 You just have to implement TraceServiceInterface:
@@ -181,7 +181,7 @@ const headersMap = {
 };
 ```
 
-Sou you can just define you service which should return these fields. For example you can use `cls-hooked` for retrieving request data
+Sou you can just define your service which should return these fields. For example, you can use `cls-hooked` for retrieving request data
 
 ```typescript
 export class TraceService implements TraceDataServiceInterface {
