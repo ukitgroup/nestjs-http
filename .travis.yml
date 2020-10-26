@@ -1,0 +1,47 @@
+language: node_js
+
+cache:
+  directories:
+    - node_modules
+
+notifications:
+  email:
+    recipients:
+      - laplandin.denis@gmail.com
+      - goodluckhf@yandex.tu
+    on_success: never
+    on_failure: always
+
+stages:
+  - lints
+  - test
+  - name: release
+    if: branch = master
+jobs:
+  include:
+    - stage: lints
+      name: 'linting and type checking'
+      node_js:
+        - '12'
+      before_script:
+        - npm prune
+      script:
+        - npm run lint
+        - npm run build
+    - stage: test
+      node_js:
+        - '12'
+      before_script:
+        - npm prune
+      script:
+        - npm run test:cov
+        - npm run test:e2e
+      after_success:
+        - npm run report-coverage
+    - stage: release
+      node_js: '12'
+      before_script:
+        - npm prune
+      script:
+        - npm run build
+        - npm run semantic-release
