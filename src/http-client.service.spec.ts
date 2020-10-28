@@ -90,6 +90,23 @@ describe('HTTP client service', () => {
   describe.each(['get', 'post', 'delete', 'head', 'put', 'patch'])(
     'Method invocation: %s',
     (method: string) => {
+      it('Should provide client options', () => {
+        ctx.gotInstance[method] = jest.fn();
+
+        const service = new HttpClientService(
+          ctx.gotInstance,
+          ctx.traceDataService,
+          ctx.httpServiceConfigProvider,
+        );
+
+        service[method]('', { headers: { test: 10 }, retries: 10 });
+
+        expect(ctx.gotInstance[method]).toBeCalledWith('', {
+          headers: { test: 10 },
+          retries: 10,
+        });
+      });
+
       it('Should not add headers if shouldTraceServiceInvoke is disabled', () => {
         ctx.gotInstance[method] = jest.fn();
 
@@ -126,10 +143,10 @@ describe('HTTP client service', () => {
           ctx.httpServiceConfigProvider,
         );
 
-        service[method]('');
+        service[method]('', { headers: { test: 1 } });
 
         expect(ctx.gotInstance[method]).toBeCalledWith('', {
-          headers: { 'x-trace-id': 'testId' },
+          headers: { 'x-trace-id': 'testId', test: 1 },
         });
       });
     },
