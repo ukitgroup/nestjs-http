@@ -1,5 +1,6 @@
 {
   "name": "@ukitgroup/nestjs-http",
+  "private": false,
   "version": "0.0.0",
   "description": "Http adapter for nestjs",
   "main": "index.js",
