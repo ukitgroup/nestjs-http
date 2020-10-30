@@ -2,7 +2,7 @@
   "name": "@ukitgroup/nestjs-http",
   "private": false,
   "version": "0.0.0",
-  "description": "Http adapter for nestjs",
+  "description": "Full featured Http adapter for nestjs based on GOT",
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
@@ -22,7 +22,12 @@
     "url": "git+https://github.com/ukitgroup/nestjs-http.git"
   },
   "keywords": [
-    "nestjs"
+    "nestjs",
+    "http",
+    "got",
+    "tracing",
+    "typescript",
+    "microservices"
   ],
   "author": "laplandin <laplandin.denis@gmail.com>",
   "contributors": [
