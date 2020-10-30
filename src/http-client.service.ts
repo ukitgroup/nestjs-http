@@ -20,10 +20,7 @@ export class HttpClientService {
     this.clientConfig = this.httpServiceConfigProvider.getConfig();
   }
 
-  get(
-    url: string,
-    { clientOpts }: { clientOpts: HttpClientOptionsType } = { clientOpts: {} },
-  ) {
+  get(url: string, clientOpts: HttpClientOptionsType = {}) {
     const { headers } = clientOpts;
     const traceHeaders = this.getHeaders();
     return this.gotInstance.get(url, {
@@ -32,10 +29,7 @@ export class HttpClientService {
     });
   }
 
-  post(
-    url: string,
-    { clientOpts }: { clientOpts: HttpClientOptionsType } = { clientOpts: {} },
-  ) {
+  post(url: string, clientOpts: HttpClientOptionsType = {}) {
     const { headers } = clientOpts;
     const traceHeaders = this.getHeaders();
     return this.gotInstance.post(url, {
@@ -44,10 +38,7 @@ export class HttpClientService {
     });
   }
 
-  delete(
-    url: string,
-    { clientOpts }: { clientOpts: HttpClientOptionsType } = { clientOpts: {} },
-  ) {
+  delete(url: string, clientOpts: HttpClientOptionsType = {}) {
     const { headers } = clientOpts;
     const traceHeaders = this.getHeaders();
     return this.gotInstance.delete(url, {
@@ -56,10 +47,7 @@ export class HttpClientService {
     });
   }
 
-  head(
-    url: string,
-    { clientOpts }: { clientOpts: HttpClientOptionsType } = { clientOpts: {} },
-  ) {
+  head(url: string, clientOpts: HttpClientOptionsType = {}) {
     const { headers } = clientOpts;
     const traceHeaders = this.getHeaders();
     return this.gotInstance.head(url, {
@@ -68,10 +56,7 @@ export class HttpClientService {
     });
   }
 
-  put(
-    url: string,
-    { clientOpts }: { clientOpts: HttpClientOptionsType } = { clientOpts: {} },
-  ) {
+  put(url: string, clientOpts: HttpClientOptionsType = {}) {
     const { headers } = clientOpts;
     const traceHeaders = this.getHeaders();
     return this.gotInstance.put(url, {
@@ -80,10 +65,7 @@ export class HttpClientService {
     });
   }
 
-  patch(
-    url: string,
-    { clientOpts }: { clientOpts: HttpClientOptionsType } = { clientOpts: {} },
-  ) {
+  patch(url: string, clientOpts: HttpClientOptionsType = {}) {
     const { headers } = clientOpts;
     const traceHeaders = this.getHeaders();
     return this.gotInstance.patch(url, {
