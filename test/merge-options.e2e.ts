@@ -41,7 +41,9 @@ describe('Use different options for GOT in different modules', () => {
 
   @Controller('root')
   class RootController {
-    constructor(@Inject(HttpClientService) private readonly httpClient: Got) {}
+    constructor(
+      @Inject(HttpClientService) private readonly httpClient: HttpClientService,
+    ) {}
 
     @Get('error')
     @HttpCode(500)
