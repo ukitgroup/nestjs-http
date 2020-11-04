@@ -4,7 +4,6 @@ import {
   Provider,
   Type,
 } from '@nestjs/common';
-import { Options } from 'got';
 
 export type HttpClientForRootType = {
   imports?: Array<
@@ -20,5 +19,3 @@ export type ServiceConfigType = {
   };
   excludeHeaders?: Array<string>;
 };
-
-export type HttpClientOptionsType = Options;

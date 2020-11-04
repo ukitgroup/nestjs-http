@@ -1,7 +1,7 @@
-import { Got } from 'got';
+import { Got, Options, Headers, Response, CancelableRequest } from 'got';
 import { Inject, Optional } from '@nestjs/common';
 import { GOT_INSTANCE, TRACE_DATA_SERVICE } from './di-token-constants';
-import { ServiceConfigType, HttpClientOptionsType } from './types/config.types';
+import { ServiceConfigType } from './types/config.types';
 import { TraceDataServiceInterface } from './types/trace-data-service.interface';
 import { HttpServiceConfigProvider } from './http-service-config.provider';
 import { HttpServiceConfigProviderInterface } from './http-service-config-provider.interface';
@@ -20,58 +20,76 @@ export class HttpClientService {
     this.clientConfig = this.httpServiceConfigProvider.getConfig();
   }
 
-  get(url: string, clientOpts: HttpClientOptionsType = {}) {
+  get<T = unknown>(
+    url: string,
+    clientOpts: Options = {},
+  ): CancelableRequest<Response<T>> {
     const { headers } = clientOpts;
-    const traceHeaders = this.getHeaders();
+    const traceHeaders: Headers = this.getHeaders();
     return this.gotInstance.get(url, {
       ...clientOpts,
       headers: { ...headers, ...traceHeaders },
-    });
+    }) as CancelableRequest<Response<T>>;
   }
 
-  post(url: string, clientOpts: HttpClientOptionsType = {}) {
+  post<T = unknown>(
+    url: string,
+    clientOpts: Options = {},
+  ): CancelableRequest<Response<T>> {
     const { headers } = clientOpts;
     const traceHeaders = this.getHeaders();
     return this.gotInstance.post(url, {
       ...clientOpts,
       headers: { ...headers, ...traceHeaders },
-    });
+    }) as CancelableRequest<Response<T>>;
   }
 
-  delete(url: string, clientOpts: HttpClientOptionsType = {}) {
+  delete<T = unknown>(
+    url: string,
+    clientOpts: Options = {},
+  ): CancelableRequest<Response<T>> {
     const { headers } = clientOpts;
     const traceHeaders = this.getHeaders();
     return this.gotInstance.delete(url, {
       ...clientOpts,
       headers: { ...headers, ...traceHeaders },
-    });
+    }) as CancelableRequest<Response<T>>;
   }
 
-  head(url: string, clientOpts: HttpClientOptionsType = {}) {
+  head<T = unknown>(
+    url: string,
+    clientOpts: Options = {},
+  ): CancelableRequest<Response<T>> {
     const { headers } = clientOpts;
     const traceHeaders = this.getHeaders();
     return this.gotInstance.head(url, {
       ...clientOpts,
       headers: { ...headers, ...traceHeaders },
-    });
+    }) as CancelableRequest<Response<T>>;
   }
 
-  put(url: string, clientOpts: HttpClientOptionsType = {}) {
+  put<T = unknown>(
+    url: string,
+    clientOpts: Options = {},
+  ): CancelableRequest<Response<T>> {
     const { headers } = clientOpts;
     const traceHeaders = this.getHeaders();
     return this.gotInstance.put(url, {
       ...clientOpts,
       headers: { ...headers, ...traceHeaders },
-    });
+    }) as CancelableRequest<Response<T>>;
   }
 
-  patch(url: string, clientOpts: HttpClientOptionsType = {}) {
+  patch<T = unknown>(
+    url: string,
+    clientOpts: Options = {},
+  ): CancelableRequest<Response<T>> {
     const { headers } = clientOpts;
     const traceHeaders = this.getHeaders();
     return this.gotInstance.patch(url, {
       ...clientOpts,
       headers: { ...headers, ...traceHeaders },
-    });
+    }) as CancelableRequest<Response<T>>;
   }
 
   private getHeaders() {
