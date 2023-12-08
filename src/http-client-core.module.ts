@@ -29,19 +29,19 @@ export class HttpClientCoreModule {
       },
     ];
     const forRootGotConfigProvider = providers.find(
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       p => p.provide && p.provide === GOT_CONFIG,
     );
 
     const forRootHTTPServiceProvider = providers.find(
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       p => p.provide && p.provide === HTTP_SERVICE_CONFIG,
     );
 
     if (forRootGotConfigProvider) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       defaultProviders.push({
         ...forRootGotConfigProvider,
@@ -50,7 +50,7 @@ export class HttpClientCoreModule {
     }
 
     if (forRootHTTPServiceProvider) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       defaultProviders.push({
         ...forRootHTTPServiceProvider,
