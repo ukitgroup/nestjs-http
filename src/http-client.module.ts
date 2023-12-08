@@ -41,19 +41,19 @@ export class HttpClient {
     const allProviders: Provider[] = [];
 
     const forInstanceGotConfigProvider = providers.find(
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       p => p.provide && p.provide === GOT_CONFIG,
     );
 
     const forInstanceHTTPServiceProvider = providers.find(
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       p => p.provide && p.provide === HTTP_SERVICE_CONFIG,
     );
 
     if (forInstanceGotConfigProvider) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       allProviders.push({
         ...forInstanceGotConfigProvider,
@@ -62,7 +62,7 @@ export class HttpClient {
     }
 
     if (forInstanceHTTPServiceProvider) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       allProviders.push({
         ...forInstanceHTTPServiceProvider,

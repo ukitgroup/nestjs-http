@@ -5,7 +5,7 @@ export function uniqueProvidersByToken(providers: Provider[]): Provider[] {
     ...new Map(
       providers.map(provider => {
         const token =
-          // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           typeof provider.provide !== 'undefined' ? provider.provide : provider;
         return [token, provider];
