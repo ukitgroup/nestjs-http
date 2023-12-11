@@ -1,7 +1,7 @@
 {
   "name": "@ukitgroup/nestjs-http",
   "private": false,
-  "version": "2.0.1",
+  "version": "2.0.4",
   "description": "Full featured Http adapter for nestjs based on GOT",
   "main": "index.js",
   "types": "index.d.ts",

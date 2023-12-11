@@ -27,8 +27,8 @@
 
 ## Requirements
 
-1. @nestjs/common ^7.2.0
-2. @nestjs/core ^7.2.0
+1. @nestjs/common ^9.1.4
+2. @nestjs/core ^9.1.4
 
 ## Installation
 
